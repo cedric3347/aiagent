@@ -2,6 +2,8 @@ import os
 import sys 
 from dotenv import load_dotenv
 from  google import genai
+from google.genai import types
+
 
 def main():
     
@@ -12,10 +14,12 @@ def main():
 
     # user prompt conversion
     prompt = ' '.join(sys.argv[1:])
+
+    messages = [types.Content(role="user", parts=[types.Part(text=prompt)])]
     
     #check for sys.argv argument
     if len(sys.argv) > 1 :
-        response = client.models.generate_content(model='gemini-2.0-flash-001', contents=prompt)
+        response = client.models.generate_content(model='gemini-2.0-flash-001', contents=messages)
 
     # gives insturctions on how to use program   
     else:
