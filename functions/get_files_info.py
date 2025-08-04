@@ -16,7 +16,7 @@ def get_files_info(working_directory, directory="."):
 
     # try/except block to build str and catch errors if they arise
     try:
-        # check to see if  directory is outside the working_directory
+        # check to see if the directory is outside the working_directory
         if not abs_path.startswith(abs_working_directory):
             return f'    Error: Cannot list "{directory}" as it is outside the permitted working directory'
         
