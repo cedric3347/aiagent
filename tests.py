@@ -1,24 +1,16 @@
-from functions.get_file_content import get_file_content
+from functions.write_file import write_file
 import os
 
 
 
 if __name__ == "__main__":
-    print("Testing get_file_content function:")
-    
-    print("\nResult for main.py:")
-    print(get_file_content("calculator", "main.py"))
-    
-    print("\nResult for pkg/calculator.py:")
-    print(get_file_content("calculator", "pkg/calculator.py"))
-    
-    print("\nResult for /bin/cat (should be error):")
-    print(get_file_content("calculator", "/bin/cat"))
-    
-    print("\nResult for pkg/does_not_exist.py (should be error):")
-    print(get_file_content("calculator", "pkg/does_not_exist.py"))
+    print("Testing write_file function:")
 
-    print("\nResult for lorem.txt (should be truncated):")
-    result = get_file_content("calculator", "lorem.txt")
-    print(f"Length: {len(result)} characters")
-    print(result[:200] + "..." if len(result) > 200 else result)  # Show first 200 chars
+    print("\nWriting to a file in the root directory(lorem.txt)")
+    print(write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum"))
+    
+    print("\nWriting to a file in a subdirectory(pkg/morelorem.txt)")
+    print(write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet"))
+    
+    print("\nAttempting to write outside the working directory")
+    print(write_file("calculator", "/tmp/temp.txt", "this should not be allowed"))
