@@ -1,16 +1,11 @@
-from functions.write_file import write_file
+from functions.run_python import run_python_file
 import os
 
 
 
 if __name__ == "__main__":
-    print("Testing write_file function:")
-
-    print("\nWriting to a file in the root directory(lorem.txt)")
-    print(write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum"))
-    
-    print("\nWriting to a file in a subdirectory(pkg/morelorem.txt)")
-    print(write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet"))
-    
-    print("\nAttempting to write outside the working directory")
-    print(write_file("calculator", "/tmp/temp.txt", "this should not be allowed"))
+    print(run_python_file("calculator", "main.py"))
+    print(run_python_file("calculator", "main.py", ["3 + 5"]))
+    print(run_python_file("calculator", "tests.py"))
+    print(run_python_file("calculator", "../main.py"))
+    print(run_python_file("calculator", "nonexistent.py"))

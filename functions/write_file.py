@@ -3,7 +3,6 @@ import os
 
 
 def write_file(working_directory, file_path, content):
-
        # var for full path
     full_path = os.path.join(working_directory, file_path)
     
@@ -27,13 +26,11 @@ def write_file(working_directory, file_path, content):
         # creates file_path if it doesn't exist 
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)   
-
-        
+ 
     except Exception as e:
         return f'Error: {e}'
     
-
-    # overwrites file with what is in the 'content' argument
+    # overwrites file with what's in the 'content' argument
     with open(abs_path, "w") as f:
         f.write(content)
 

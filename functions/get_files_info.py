@@ -1,6 +1,7 @@
 import os
 
 
+
 def get_files_info(working_directory, directory="."):
     # var for full path
     full_path = os.path.join(working_directory, directory)
@@ -13,6 +14,8 @@ def get_files_info(working_directory, directory="."):
 
     # var to build contents of the directory
     formatted_content_str = ""
+
+    
 
     # try/except block to build str and catch errors if they arise
     try:
@@ -28,6 +31,7 @@ def get_files_info(working_directory, directory="."):
         for item_name in os.listdir(abs_path):
             full_item_path = os.path.join(abs_path, item_name)
             formatted_content_str += f' - {item_name}: file_size={os.path.getsize(full_item_path)} bytes, is_dir={os.path.isdir(full_item_path)}\n'
+    
     except Exception as e:
         return f'Error: {e}'
     
