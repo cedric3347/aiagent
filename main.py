@@ -3,6 +3,8 @@ import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from config import system_prompt
+
 
 
 def main():
@@ -19,8 +21,11 @@ def main():
     
     # check for sys.argv argument
     if len(sys.argv) > 1 :
-        response = client.models.generate_content(model='gemini-2.0-flash-001', contents=messages)
-
+        response = client.models.generate_content(
+            model='gemini-2.0-flash-001',
+            contents=messages,
+            config=types.GenerateContentConfig(system_instruction=system_prompt),
+        )
 
         # checks for "--verbose" flag and prints more info about a prompt
         if sys.argv[-1] == "--verbose":
@@ -29,7 +34,6 @@ def main():
             print(f'User prompt: "{' '.join(prompt_without_last)}"')
             print(f'Prompt tokens: {response.usage_metadata.prompt_token_count}')
             print(f'Response tokens: {response.usage_metadata.candidates_token_count}')
-
 
     # gives insturctions on how to use the program   
     else:
