@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from config import system_prompt
+from schemas.schema_get_files_info import schema_get_files_info
+from config import available_functions
 
 
 
@@ -24,7 +26,11 @@ def main():
         response = client.models.generate_content(
             model='gemini-2.0-flash-001',
             contents=messages,
-            config=types.GenerateContentConfig(system_instruction=system_prompt),
+            config=types.GenerateContentConfig(
+                # sets tone for the conversation
+                system_instruction=system_prompt,
+                # function declaration
+                tools=[available_functions]),
         )
 
         # checks for "--verbose" flag and prints more info about a prompt
@@ -43,8 +49,17 @@ def main():
         print("No prompt detected...Exiting Program")
         sys.exit(1)
 
-    # prints outputs
-    print(f'Response:\n {response.text}')
+    # checks for any function calls and prints outputs
+    if response.function_calls:
+        for function_call in response.function_calls:
+            print(f"Calling function: {function_call.name}({function_call.args})")
+        
+        # checks test response and prints output
+        if response.text and response.text.strip():
+            print(f"Response:\n{response.text}")
+    else:
+        print(f"Response:\n{response.text}")
+
 
 if __name__== "__main__":
     main()
