@@ -6,6 +6,7 @@ from google.genai import types
 from config import system_prompt
 from schemas.schema_get_files_info import schema_get_files_info
 from config import available_functions
+from functions.call_function import call_function
 
 
 
@@ -49,17 +50,27 @@ def main():
         print("No prompt detected...Exiting Program")
         sys.exit(1)
 
-    # checks for any function calls and prints outputs
+    # var for "--verbose" check
+    verbose_flag = "--verbose" in sys.argv
+
+    # uses the "call_function" function
     if response.function_calls:
         for function_call in response.function_calls:
-            print(f"Calling function: {function_call.name}({function_call.args})")
+            function_call_result = call_function(function_call, verbose=verbose_flag)
         
-        # checks test response and prints output
+            # checks for .parts[0].function_response.response
+            if not function_call_result.parts[0].function_response.response:
+                raise ValueError("Fatal error detected, unable to continue")
+
+            # verbose check
+            if verbose_flag:
+                print(f"-> {function_call_result.parts[0].function_response.response}")
+
+        # checks text response and prints output
         if response.text and response.text.strip():
             print(f"Response:\n{response.text}")
     else:
         print(f"Response:\n{response.text}")
-
 
 if __name__== "__main__":
     main()
