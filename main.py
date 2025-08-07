@@ -7,6 +7,7 @@ from config import system_prompt
 from schemas.schema_get_files_info import schema_get_files_info
 from config import available_functions
 from functions.call_function import call_function
+from config import iteration_max
 
 
 
@@ -24,23 +25,66 @@ def main():
     
     # check for sys.argv argument
     if len(sys.argv) > 1 :
-        response = client.models.generate_content(
-            model='gemini-2.0-flash-001',
-            contents=messages,
-            config=types.GenerateContentConfig(
-                # sets tone for the conversation
-                system_instruction=system_prompt,
-                # function declaration
-                tools=[available_functions]),
-        )
+        
+        iterations = 0
+        
+        while True:
+            if iterations >= iteration_max:
+                sys.exit(f'The maximum amount of iterations has been reached ({iteration_max}).')
+            
+            response = client.models.generate_content(
+                model='gemini-2.0-flash-001',
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    # sets tone for the conversation
+                    system_instruction=system_prompt,
+                    # function declaration
+                    tools=[available_functions]),
+            )
 
-        # checks for "--verbose" flag and prints more info about a prompt
-        if sys.argv[-1] == "--verbose":
-            split_prompt = prompt.split(' ')
-            prompt_without_last = split_prompt[:-1]
-            print(f'User prompt: "{' '.join(prompt_without_last)}"')
-            print(f'Prompt tokens: {response.usage_metadata.prompt_token_count}')
-            print(f'Response tokens: {response.usage_metadata.candidates_token_count}')
+            # adds LLM's response to conversation
+            for candidate in response.candidates:
+                messages.append(candidate.content)
+
+            # var for "--verbose" check
+            verbose_flag = "--verbose" in sys.argv
+
+            # uses the "call_function" function
+            if response.function_calls:
+                for function_call in response.function_calls:
+                    function_call_result = call_function(function_call, verbose=verbose_flag)
+                    
+                    # add results immediately to the conversation
+                    messages.append(function_call_result)
+                
+                    # checks for .parts[0].function_response.response
+                    if not function_call_result.parts[0].function_response.response:
+                        raise ValueError("Fatal error detected, unable to continue")
+
+                    # verbose check
+                    if verbose_flag:
+                        print(f"-> {function_call_result.parts[0].function_response.response}")
+                
+            # checks for text response and final print and break after all function calls and LLM is done 
+            else: 
+                if response.text and response.text.strip():
+                    print("Final response:")
+                    print(response.text)
+                    break
+
+                else:
+                    break
+            
+
+            # checks for "--verbose" flag and prints more info about a prompt
+            if sys.argv[-1] == "--verbose":
+                split_prompt = prompt.split(' ')
+                prompt_without_last = split_prompt[:-1]
+                print(f'User prompt: "{' '.join(prompt_without_last)}"')
+                print(f'Prompt tokens: {response.usage_metadata.prompt_token_count}')
+                print(f'Response tokens: {response.usage_metadata.candidates_token_count}')
+            
+            iterations += 1
 
     # gives insturctions on how to use the program   
     else:
@@ -50,27 +94,6 @@ def main():
         print("No prompt detected...Exiting Program")
         sys.exit(1)
 
-    # var for "--verbose" check
-    verbose_flag = "--verbose" in sys.argv
-
-    # uses the "call_function" function
-    if response.function_calls:
-        for function_call in response.function_calls:
-            function_call_result = call_function(function_call, verbose=verbose_flag)
-        
-            # checks for .parts[0].function_response.response
-            if not function_call_result.parts[0].function_response.response:
-                raise ValueError("Fatal error detected, unable to continue")
-
-            # verbose check
-            if verbose_flag:
-                print(f"-> {function_call_result.parts[0].function_response.response}")
-
-        # checks text response and prints output
-        if response.text and response.text.strip():
-            print(f"Response:\n{response.text}")
-    else:
-        print(f"Response:\n{response.text}")
-
+    
 if __name__== "__main__":
     main()

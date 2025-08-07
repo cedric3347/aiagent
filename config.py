@@ -1,13 +1,13 @@
+# sets maximum character limit
 MAX_CHARS = 10000
 
+# imports are after MAX_CHARS to prevent conflict in another function
 from google import genai
 from google.genai import types
 from schemas.schema_get_files_info import schema_get_files_info
 from schemas.schema_get_file_content import schema_get_file_content
 from schemas.schema_run_python_file import schema_run_python_file
 from schemas.schema_write_file import schema_write_file
-
-
 
 
 # system prompt config
@@ -33,3 +33,6 @@ available_functions = types.Tool(
         schema_write_file,
     ]
 )
+
+# sets max loop iterations
+iteration_max = 20
